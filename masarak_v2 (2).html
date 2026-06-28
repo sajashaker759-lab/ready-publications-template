@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>قوالب مسارك</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #03060f;
+    font-family: 'Cairo', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 16px 40px;
+    gap: 16px;
+  }
+
+  h2 { color: rgba(255,255,255,0.5); font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+
+  /* Tabs */
+  .tabs {
+    display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+  }
+  .tab-btn {
+    padding: 8px 16px; border-radius: 50px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.5);
+    font-family: 'Cairo', sans-serif;
+    font-size: 13px; font-weight: 700; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab-btn.active { background: #fff; color: #03060f; border-color: transparent; }
+
+  /* Post wrapper - scales to fit screen */
+  .post-wrap {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    justify-content: center;
+  }
+
+  /* The post itself is always square, scales via transform */
+  .post-scaler {
+    width: 500px;
+    height: 500px;
+    transform-origin: top center;
+  }
+
+  .post {
+    width: 500px; height: 500px;
+    position: relative; overflow: hidden;
+    border-radius: 24px;
+    display: none;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+  }
+  .post.active { display: block; }
+
+  /* BG elements */
+  .beam { position:absolute; width:2px; height:600px; background:linear-gradient(180deg,transparent,rgba(99,179,255,0.3),transparent); top:-50px; left:160px; transform:rotate(22deg); transform-origin:top center; }
+  .beam2 { position:absolute; width:1px; height:500px; background:linear-gradient(180deg,transparent,rgba(99,179,255,0.12),transparent); top:-30px; left:230px; transform:rotate(22deg); transform-origin:top center; }
+  .ring { position:absolute; border-radius:50%; border:1px solid rgba(99,179,255,0.07); }
+  .glow-orb { position:absolute; border-radius:50%; }
+  .grid-bg { position:absolute; inset:0; }
+  .diag-lines { position:absolute; inset:0; }
+  .vignette { position:absolute; inset:0; background:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,0,0.55) 100%); }
+  .hline { position:absolute; height:1px; left:36px; right:36px; background:linear-gradient(90deg,transparent,rgba(234,179,8,0.25),transparent); }
+
+  /* Content */
+  .pc { position:relative; z-index:10; height:100%; display:flex; flex-direction:column; padding:30px 36px 26px; }
+
+  /* Header */
+  .ph { display:flex; align-items:center; justify-content:space-between; }
+  .pb { display:flex; align-items:center; gap:9px; }
+  .pi { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:16px; }
+  .pn { font-size:16px; font-weight:900; color:#fff; }
+  .ps { font-size:9px; font-weight:600; margin-top:-1px; }
+  .pbadge { font-size:10px; font-weight:800; padding:4px 12px; border-radius:50px; border:1px solid; }
+  .pdiv { height:1px; margin:16px 0; }
+
+  /* Body */
+  .pbody { flex:1; display:flex; flex-direction:column; justify-content:center; }
+  .ptag { display:inline-block; font-size:9.5px; font-weight:800; letter-spacing:2px; text-transform:uppercase; padding:3px 12px; border-radius:4px; margin-bottom:12px; width:fit-content; }
+  .ptitle { font-size:28px; font-weight:900; color:#fff; line-height:1.25; margin-bottom:10px; letter-spacing:-0.5px; }
+  .ptext { font-size:12.5px; line-height:1.75; font-weight:400; }
+  .ppoints { list-style:none; display:flex; flex-direction:column; gap:8px; margin-top:8px; }
+  .ppoints li { display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:600; }
+  .pbullet { width:5px; height:5px; border-radius:50%; flex-shrink:0; }
+
+  /* Job card */
+  .jcard { border-radius:13px; padding:14px 16px; margin:10px 0; }
+  .jtitle { font-size:20px; font-weight:900; color:#fff; margin-bottom:8px; }
+  .jtags { display:flex; flex-wrap:wrap; gap:6px; }
+  .jtag { font-size:11px; font-weight:700; padding:4px 12px; border-radius:50px; border:1px solid; }
+
+  /* Glass card */
+  .gcard { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:13px; padding:12px 14px; margin-top:8px; }
+  .gcard-row { display:flex; align-items:center; gap:10px; padding:6px 0; }
+  .gcard-row:not(:last-child) { border-bottom:1px solid rgba(255,255,255,0.05); }
+  .gcard-icon { font-size:16px; }
+  .gcard-text { font-size:12px; font-weight:600; }
+
+  /* Quote */
+  .pquote { font-size:22px; font-weight:900; color:#fff; line-height:1.5; text-align:center; margin-bottom:12px; }
+  .pauthor { text-align:center; font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; }
+
+  /* Footer */
+  .pfoot { display:flex; align-items:center; justify-content:space-between; margin-top:16px; }
+  .pcta { font-size:12px; font-weight:900; padding:10px 22px; border-radius:50px; text-decoration:none; color:#fff; letter-spacing:0.3px; }
+  .psocial { font-size:9.5px; font-weight:600; text-align:left; line-height:1.7; }
+
+  /* Editor */
+  .editor { width:100%; max-width:500px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:18px 20px; display:none; }
+  .editor.active { display:block; }
+  .etitle { font-size:11px; font-weight:800; color:rgba(255,255,255,0.35); letter-spacing:2px; text-transform:uppercase; margin-bottom:12px; }
+  .fields { display:flex; flex-direction:column; gap:8px; }
+  .field label { display:block; font-size:11px; color:rgba(255,255,255,0.3); font-weight:700; margin-bottom:3px; }
+  .field input, .field textarea { width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); border-radius:9px; padding:8px 12px; color:#fff; font-family:'Cairo',sans-serif; font-size:13px; outline:none; resize:none; }
+  .field input:focus, .field textarea:focus { border-color:rgba(255,255,255,0.2); }
+  .ubtn { margin-top:12px; width:100%; padding:11px; border-radius:50px; border:none; background:#fff; color:#03060f; font-family:'Cairo',sans-serif; font-size:14px; font-weight:900; cursor:pointer; }
+  .hint { font-size:11px; color:rgba(255,255,255,0.18); text-align:center; }
+</style>
+</head>
+<body>
+
+<h2>قوالب مسارك</h2>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab(0)">💡 نصيحة</button>
+  <button class="tab-btn" onclick="showTab(1)">💼 فرصة عمل</button>
+  <button class="tab-btn" onclick="showTab(2)">🛠️ مهارة</button>
+  <button class="tab-btn" onclick="showTab(3)">✨ تحفيز</button>
+</div>
+
+<div class="post-wrap">
+  <div class="post-scaler" id="scaler">
+
+    <!-- POST 0: نصيحة -->
+    <div class="post active" id="p0" style="background:#080c18">
+      <div class="beam"></div><div class="beam2"></div>
+      <div class="ring" style="width:300px;height:300px;top:-90px;right:-70px"></div>
+      <div class="ring" style="width:180px;height:180px;top:-30px;right:-10px"></div>
+      <div class="pc">
+        <div class="ph">
+          <div class="pb">
+            <div class="pi" style="background:rgba(99,179,255,0.1);border:1px solid rgba(99,179,255,0.18)">🧭</div>
+            <div><div class="pn">مسارك</div><div class="ps" style="color:rgba(99,179,255,0.45)">دليلك المهني</div></div>
+          </div>
+          <div class="pbadge" style="color:rgba(99,179,255,0.75);border-color:rgba(99,179,255,0.15);background:rgba(99,179,255,0.06)">💡 نصيحة مهنية</div>
+        </div>
+        <div class="pdiv" style="background:linear-gradient(90deg,transparent,rgba(99,179,255,0.15),transparent)"></div>
+        <div class="pbody">
+          <div class="ptag" id="t0tag" style="background:rgba(99,179,255,0.08);color:rgba(99,179,255,0.65)">التطوير المهني</div>
+          <div class="ptitle" id="t0title">كيف تبني <span style="color:#63b3ff">شبكة علاقات</span> قوية؟</div>
+          <ul class="ppoints">
+            <li><div class="pbullet" style="background:#63b3ff"></div><span id="t0p1" style="color:rgba(255,255,255,0.7)">حضر الفعاليات والمؤتمرات في مجالك</span></li>
+            <li><div class="pbullet" style="background:#63b3ff"></div><span id="t0p2" style="color:rgba(255,255,255,0.7)">تواصل مع المتخصصين على LinkedIn بانتظام</span></li>
+            <li><div class="pbullet" style="background:#63b3ff"></div><span id="t0p3" style="color:rgba(255,255,255,0.7)">قدّم قيمة للآخرين قبل ما تطلب مساعدة</span></li>
+          </ul>
+        </div>
+        <div class="pfoot">
+          <a href="https://t.me/MasarakIQ" target="_blank" class="pcta" style="background:rgba(99,179,255,0.12);border:1px solid rgba(99,179,255,0.22)">انضم للقناة ←</a>
+          <div class="psocial" style="color:rgba(255,255,255,0.22)">@MasarakIQ • تيليغرام<br>@masarakto1 • إنستغرام</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- POST 1: فرصة عمل -->
+    <div class="post" id="p1" style="background:#050e09">
+      <div class="glow-orb" style="width:300px;height:300px;background:radial-gradient(circle,rgba(16,185,129,0.12) 0%,transparent 70%);top:-90px;left:-70px"></div>
+      <div class="grid-bg" style="background-image:linear-gradient(rgba(16,185,129,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(16,185,129,0.04) 1px,transparent 1px);background-size:34px 34px"></div>
+      <div class="pc">
+        <div class="ph">
+          <div class="pb">
+            <div class="pi" style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.18)">🧭</div>
+            <div><div class="pn">مسارك</div><div class="ps" style="color:rgba(16,185,129,0.45)">دليلك المهني</div></div>
+          </div>
+          <div class="pbadge" style="color:rgba(52,211,153,0.75);border-color:rgba(52,211,153,0.15);background:rgba(16,185,129,0.06)">💼 فرصة عمل</div>
+        </div>
+        <div class="pdiv" style="background:linear-gradient(90deg,transparent,rgba(16,185,129,0.15),transparent)"></div>
+        <div class="pbody">
+          <div class="ptag" id="t1tag" style="background:rgba(16,185,129,0.08);color:rgba(52,211,153,0.65)">متاحة الآن</div>
+          <div class="jcard" style="background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.12)">
+            <div class="jtitle" id="t1title">مصمم جرافيك</div>
+            <div class="jtags">
+              <span class="jtag" id="t1t1" style="color:rgba(52,211,153,0.8);border-color:rgba(52,211,153,0.15);background:rgba(16,185,129,0.08)">🏢 عن بُعد</span>
+              <span class="jtag" id="t1t2" style="color:rgba(52,211,153,0.8);border-color:rgba(52,211,153,0.15);background:rgba(16,185,129,0.08)">💰 براتب تنافسي</span>
+              <span class="jtag" id="t1t3" style="color:rgba(52,211,153,0.8);border-color:rgba(52,211,153,0.15);background:rgba(16,185,129,0.08)">⏳ دوام كامل</span>
+            </div>
+          </div>
+          <div class="ptext" id="t1desc" style="color:rgba(255,255,255,0.5);margin-top:10px">نبحث عن مصمم جرافيك مبدع لديه خبرة لا تقل عن سنتين. إذا كنت شغوفاً بالتصميم ولديك محفظة قوية، هذه فرصتك!</div>
+        </div>
+        <div class="pfoot">
+          <a href="https://t.me/MasarakIQ" target="_blank" class="pcta" style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.22)">تفاصيل أكثر ←</a>
+          <div class="psocial" style="color:rgba(255,255,255,0.22)">@MasarakIQ • تيليغرام<br>@masarakto1 • إنستغرام</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- POST 2: مهارة -->
+    <div class="post" id="p2" style="background:#0a0614">
+      <div class="glow-orb" style="width:350px;height:350px;background:radial-gradient(circle,rgba(124,58,237,0.16) 0%,transparent 65%);top:-130px;right:-90px"></div>
+      <div class="glow-orb" style="width:200px;height:200px;background:radial-gradient(circle,rgba(236,72,153,0.07) 0%,transparent 65%);bottom:-50px;left:-30px"></div>
+      <div class="diag-lines" style="background-image:repeating-linear-gradient(-45deg,transparent,transparent 36px,rgba(124,58,237,0.025) 36px,rgba(124,58,237,0.025) 37px)"></div>
+      <div class="pc">
+        <div class="ph">
+          <div class="pb">
+            <div class="pi" style="background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.22)">🧭</div>
+            <div><div class="pn">مسارك</div><div class="ps" style="color:rgba(167,139,250,0.45)">دليلك المهني</div></div>
+          </div>
+          <div class="pbadge" style="color:rgba(196,181,253,0.75);border-color:rgba(124,58,237,0.2);background:rgba(124,58,237,0.08)">🛠️ أداة اليوم</div>
+        </div>
+        <div class="pdiv" style="background:linear-gradient(90deg,transparent,rgba(124,58,237,0.2),transparent)"></div>
+        <div class="pbody">
+          <div class="ptag" id="t2tag" style="background:rgba(124,58,237,0.1);color:rgba(167,139,250,0.7)">مهارة عملية</div>
+          <div class="ptitle" id="t2title">تعرّف على <span style="color:#a78bfa">Notion AI</span></div>
+          <div class="ptext" id="t2desc" style="color:rgba(255,255,255,0.5);margin-bottom:10px">أداة ذكاء اصطناعي تساعدك تكتب، تلخص، وتنظم أفكارك بشكل أسرع.</div>
+          <div class="gcard">
+            <div class="gcard-row"><div class="gcard-icon">⚡</div><div class="gcard-text" id="t2p1" style="color:rgba(196,181,253,0.8)">توليد محتوى تلقائي بثوانٍ</div></div>
+            <div class="gcard-row"><div class="gcard-icon">📄</div><div class="gcard-text" id="t2p2" style="color:rgba(196,181,253,0.8)">تلخيص المستندات الطويلة</div></div>
+            <div class="gcard-row"><div class="gcard-icon">🆓</div><div class="gcard-text" id="t2p3" style="color:rgba(196,181,253,0.8)">مجانية للاستخدام الأساسي</div></div>
+          </div>
+        </div>
+        <div class="pfoot">
+          <a href="https://t.me/MasarakIQ" target="_blank" class="pcta" style="background:rgba(124,58,237,0.12);border:1px solid rgba(124,58,237,0.25)">اكتشف المزيد ←</a>
+          <div class="psocial" style="color:rgba(255,255,255,0.22)">@MasarakIQ • تيليغرام<br>@masarakto1 • إنستغرام</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- POST 3: تحفيز -->
+    <div class="post" id="p3" style="background:#0c0800">
+      <div class="glow-orb" style="width:450px;height:250px;background:radial-gradient(ellipse,rgba(234,179,8,0.09) 0%,transparent 65%);top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+      <div class="vignette"></div>
+      <div class="hline" style="top:90px"></div>
+      <div class="hline" style="bottom:90px"></div>
+      <div class="pc" style="justify-content:space-between">
+        <div class="ph">
+          <div class="pb">
+            <div class="pi" style="background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.18)">🧭</div>
+            <div><div class="pn">مسارك</div><div class="ps" style="color:rgba(253,224,71,0.35)">دليلك المهني</div></div>
+          </div>
+          <div class="pbadge" style="color:rgba(253,224,71,0.65);border-color:rgba(234,179,8,0.15);background:rgba(234,179,8,0.06)">✨ إلهام</div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px">
+          <div style="font-size:9px;font-weight:800;letter-spacing:4px;color:rgba(253,224,71,0.3);text-transform:uppercase">اقتباس اليوم</div>
+          <div class="pquote" id="t3quote">"النجاح ليس نهاية المطاف، والفشل ليس قاتلاً — الشجاعة على الاستمرار هي ما يهم"</div>
+          <div class="pauthor" id="t3author" style="color:rgba(253,224,71,0.3)">وينستون تشرشل</div>
+        </div>
+        <div class="pfoot">
+          <a href="https://t.me/MasarakIQ" target="_blank" class="pcta" style="background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.18)">انضم للقناة ←</a>
+          <div class="psocial" style="color:rgba(255,255,255,0.2)">@MasarakIQ • تيليغرام<br>@masarakto1 • إنستغرام</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Editors -->
+<div class="editor active" id="e0">
+  <div class="etitle">✏️ عدّل المحتوى</div>
+  <div class="fields">
+    <div class="field"><label>الموضوع</label><input id="f0tag" value="التطوير المهني"></div>
+    <div class="field"><label>العنوان</label><input id="f0title" value="كيف تبني شبكة علاقات قوية؟"></div>
+    <div class="field"><label>النقطة ١</label><input id="f0p1" value="حضر الفعاليات والمؤتمرات في مجالك"></div>
+    <div class="field"><label>النقطة ٢</label><input id="f0p2" value="تواصل مع المتخصصين على LinkedIn بانتظام"></div>
+    <div class="field"><label>النقطة ٣</label><input id="f0p3" value="قدّم قيمة للآخرين قبل ما تطلب مساعدة"></div>
+  </div>
+  <button class="ubtn" onclick="u0()">حدّث البوست ✓</button>
+</div>
+
+<div class="editor" id="e1">
+  <div class="etitle">✏️ عدّل المحتوى</div>
+  <div class="fields">
+    <div class="field"><label>المسمى الوظيفي</label><input id="f1title" value="مصمم جرافيك"></div>
+    <div class="field"><label>الوصف</label><textarea id="f1desc" rows="2">نبحث عن مصمم جرافيك مبدع لديه خبرة لا تقل عن سنتين.</textarea></div>
+    <div class="field"><label>التاق ١</label><input id="f1t1" value="عن بُعد"></div>
+    <div class="field"><label>التاق ٢</label><input id="f1t2" value="براتب تنافسي"></div>
+    <div class="field"><label>التاق ٣</label><input id="f1t3" value="دوام كامل"></div>
+  </div>
+  <button class="ubtn" onclick="u1()">حدّث البوست ✓</button>
+</div>
+
+<div class="editor" id="e2">
+  <div class="etitle">✏️ عدّل المحتوى</div>
+  <div class="fields">
+    <div class="field"><label>اسم الأداة</label><input id="f2title" value="Notion AI"></div>
+    <div class="field"><label>الوصف</label><textarea id="f2desc" rows="2">أداة ذكاء اصطناعي تساعدك تكتب، تلخص، وتنظم أفكارك بشكل أسرع.</textarea></div>
+    <div class="field"><label>الميزة ١</label><input id="f2p1" value="توليد محتوى تلقائي بثوانٍ"></div>
+    <div class="field"><label>الميزة ٢</label><input id="f2p2" value="تلخيص المستندات الطويلة"></div>
+    <div class="field"><label>الميزة ٣</label><input id="f2p3" value="مجانية للاستخدام الأساسي"></div>
+  </div>
+  <button class="ubtn" onclick="u2()">حدّث البوست ✓</button>
+</div>
+
+<div class="editor" id="e3">
+  <div class="etitle">✏️ عدّل المحتوى</div>
+  <div class="fields">
+    <div class="field"><label>الاقتباس</label><textarea id="f3quote" rows="3">"النجاح ليس نهاية المطاف، والفشل ليس قاتلاً — الشجاعة على الاستمرار هي ما يهم"</textarea></div>
+    <div class="field"><label>القائل</label><input id="f3author" value="وينستون تشرشل"></div>
+  </div>
+  <button class="ubtn" onclick="u3()">حدّث البوست ✓</button>
+</div>
+
+<div class="hint">عدّل النص ← اضغط حدّث ← خذ screenshot 📸</div>
+
+<script>
+  // Scale post to fit screen width
+  function scalePost() {
+    const scaler = document.getElementById('scaler');
+    const wrap = scaler.parentElement;
+    const available = Math.min(wrap.clientWidth, 500);
+    const scale = available / 500;
+    scaler.style.transform = `scale(${scale})`;
+    scaler.style.marginBottom = `${(500 * scale) - 500}px`;
+    wrap.style.height = (500 * scale) + 'px';
+  }
+  window.addEventListener('resize', scalePost);
+  window.addEventListener('load', scalePost);
+
+  function showTab(i) {
+    document.querySelectorAll('.post').forEach((p,j) => p.classList.toggle('active', i===j));
+    document.querySelectorAll('.tab-btn').forEach((b,j) => b.classList.toggle('active', i===j));
+    document.querySelectorAll('.editor').forEach((e,j) => e.classList.toggle('active', i===j));
+  }
+  function u0() {
+    document.getElementById('t0tag').textContent = document.getElementById('f0tag').value;
+    document.getElementById('t0title').innerHTML = document.getElementById('f0title').value;
+    document.getElementById('t0p1').textContent = document.getElementById('f0p1').value;
+    document.getElementById('t0p2').textContent = document.getElementById('f0p2').value;
+    document.getElementById('t0p3').textContent = document.getElementById('f0p3').value;
+  }
+  function u1() {
+    document.getElementById('t1title').textContent = document.getElementById('f1title').value;
+    document.getElementById('t1desc').textContent = document.getElementById('f1desc').value;
+    document.getElementById('t1t1').textContent = '🏢 ' + document.getElementById('f1t1').value;
+    document.getElementById('t1t2').textContent = '💰 ' + document.getElementById('f1t2').value;
+    document.getElementById('t1t3').textContent = '⏳ ' + document.getElementById('f1t3').value;
+  }
+  function u2() {
+    document.getElementById('t2title').innerHTML = 'تعرّف على <span style="color:#a78bfa">' + document.getElementById('f2title').value + '</span>';
+    document.getElementById('t2desc').textContent = document.getElementById('f2desc').value;
+    document.getElementById('t2p1').textContent = document.getElementById('f2p1').value;
+    document.getElementById('t2p2').textContent = document.getElementById('f2p2').value;
+    document.getElementById('t2p3').textContent = document.getElementById('f2p3').value;
+  }
+  function u3() {
+    document.getElementById('t3quote').textContent = document.getElementById('f3quote').value;
+    document.getElementById('t3author').textContent = document.getElementById('f3author').value;
+  }
+</script>
+</body>
+</html>
